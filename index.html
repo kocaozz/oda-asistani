@@ -32,9 +32,9 @@
   .eyebrow{display:inline-block;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--faint);font-weight:500}
   .divider{height:1px;max-width:1120px;margin:0 auto;background:linear-gradient(90deg,transparent,var(--line),transparent)}
 
-  .bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,rgba(210,195,150,.05) 1px,transparent 1px);background-size:32px 32px;-webkit-mask-image:radial-gradient(ellipse 90% 75% at 50% 32%,#000,transparent 78%);mask-image:radial-gradient(ellipse 90% 75% at 50% 32%,#000,transparent 78%);}
+  .bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,rgba(210,195,150,.045) 1px,transparent 1px);background-size:32px 32px;opacity:.85}
   .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(620px 520px at 50% 8%,rgba(245,197,24,.055),transparent 70%),radial-gradient(680px 620px at 84% 40%,rgba(245,197,24,.035),transparent 72%),radial-gradient(700px 640px at 8% 72%,rgba(245,197,24,.025),transparent 72%);}
-  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .grain{display:none}
 
   nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:22px 40px;transition:.4s;background:linear-gradient(180deg,rgba(11,11,12,.65),transparent)}
   nav.solid{background:rgba(11,11,12,.86);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:15px 40px}
@@ -656,8 +656,19 @@
     navMap.forEach(x=>x.a.classList.toggle('active',x===current));
   };
   onScroll();
-  window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize',onScroll,{passive:true});
+  /* iOS Safari, hızlı (momentum) kaydırma sırasında 'scroll' olayını seyrekleştirir;
+     bu yüzden ilerleme çubuğu parmağın gerisinde kalıp sonra "yetişir" gibi görünür.
+     requestAnimationFrame ile her karede pozisyonu okuyup çizmek bu gecikmeyi bypass eder. */
+  let lastScrollY=-1;
+  function rafTick(){
+    if(window.scrollY!==lastScrollY){
+      lastScrollY=window.scrollY;
+      onScroll();
+    }
+    requestAnimationFrame(rafTick);
+  }
+  requestAnimationFrame(rafTick);
   function toggleFaq(btn){
     btn.closest('.faq-item').classList.toggle('open');
   }
